@@ -11,4 +11,3 @@ BE in Software Engineering.
 
 Each directory is self-contained and carries its own README with the setup,
 rebuild and cleanup steps for that piece of work.
-# KeldenPDorji-AS2026DSO202_Practicals
