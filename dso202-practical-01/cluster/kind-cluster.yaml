@@ -1,0 +1,43 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: dso202
+
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/16"
+  apiServerAddress: "127.0.0.1"
+
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.36.1
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          name: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+
+  - role: worker
+    image: kindest/node:v1.36.1
+    labels:
+      dso202/node-role: worker
+      dso202/node-index: "1"
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          name: worker-node-1
+
+  - role: worker
+    image: kindest/node:v1.36.1
+    labels:
+      dso202/node-role: worker
+      dso202/node-index: "2"
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          name: worker-node-2

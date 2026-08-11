@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Kubernetes / local tooling
+kubeconfig
+*.kubeconfig
+.kube/
+
+# Logs and scratch
+*.log
+tmp/
+scratch/

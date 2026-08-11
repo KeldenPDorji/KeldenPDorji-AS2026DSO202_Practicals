@@ -1,0 +1,27 @@
+NAME                                  READY   STATUS    RESTARTS   AGE     IP           NODE            NOMINATED NODE   READINESS GATES
+pod/client-pod                        1/1     Running   0          4m43s   10.244.2.9   worker-node-2   <none>           <none>
+pod/web-deployment-755f7bf467-7k5v2   1/1     Running   0          13m     10.244.2.7   worker-node-2   <none>           <none>
+pod/web-deployment-755f7bf467-j7k5p   1/1     Running   0          13m     10.244.1.6   worker-node-1   <none>           <none>
+pod/web-deployment-755f7bf467-n6wcc   1/1     Running   0          13m     10.244.1.7   worker-node-1   <none>           <none>
+pod/web-pod                           1/1     Running   0          23m     10.244.2.3   worker-node-2   <none>           <none>
+
+NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE     SELECTOR
+service/web-clusterip   ClusterIP   10.96.6.235     <none>        80/TCP         4m47s   app=web,managed-by=deployment
+service/web-nodeport    NodePort    10.96.107.157   <none>        80:30080/TCP   49s     app=web,managed-by=deployment
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES              SELECTOR
+deployment.apps/web-deployment   3/3     3            3           16m   web          nginx:1.30-alpine   app=web,managed-by=deployment
+
+NAME                                        DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES                      SELECTOR
+replicaset.apps/web-deployment-557799b4b4   0         0         0       10m   web          nginx:9.99-does-not-exist   app=web,managed-by=deployment,pod-template-hash=557799b4b4
+replicaset.apps/web-deployment-57bfb65f98   0         0         0       14m   web          nginx:1.31-alpine           app=web,managed-by=deployment,pod-template-hash=57bfb65f98
+replicaset.apps/web-deployment-755f7bf467   3         3         3       16m   web          nginx:1.30-alpine           app=web,managed-by=deployment,pod-template-hash=755f7bf467
+NAME                         REQUEST                                                                                                                          LIMIT                                          AGE
+resourcequota/dso202-quota   count/configmaps: 1/10, count/secrets: 0/10, count/services: 2/5, pods: 5/20, requests.cpu: 210m/2, requests.memory: 272Mi/2Gi   limits.cpu: 850m/4, limits.memory: 544Mi/4Gi   24m
+
+NAME                       CREATED AT
+limitrange/dso202-limits   2026-08-11T08:49:24Z
+
+NAME                                                 ADDRESSTYPE   PORTS   ENDPOINTS                          AGE
+endpointslice.discovery.k8s.io/web-clusterip-nk9nx   IPv4          80      10.244.1.7,10.244.1.6,10.244.2.7   4m50s
+endpointslice.discovery.k8s.io/web-nodeport-mb52w    IPv4          80      10.244.1.6,10.244.2.7,10.244.1.7   52s

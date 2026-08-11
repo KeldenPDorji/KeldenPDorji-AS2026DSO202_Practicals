@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dso202-practical
+  labels:
+    dso202/module: dso202
+    dso202/practical: "01"
+    app.kubernetes.io/name: dso202-practical
+    app.kubernetes.io/managed-by: kubectl
+    environment: practical

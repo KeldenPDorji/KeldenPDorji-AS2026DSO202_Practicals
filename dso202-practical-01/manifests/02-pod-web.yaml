@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+  namespace: dso202-practical
+  labels:
+    app: web
+    tier: frontend
+    managed-by: declarative
+spec:
+  containers:
+    - name: web
+      image: nginx:1.30-alpine
+      ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+  terminationGracePeriodSeconds: 5

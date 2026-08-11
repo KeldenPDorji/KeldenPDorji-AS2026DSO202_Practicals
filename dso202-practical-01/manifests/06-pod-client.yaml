@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-pod
+  namespace: dso202-practical
+  labels:
+    app: client
+    tier: tooling
+    managed-by: declarative
+spec:
+  containers:
+    - name: client
+      image: busybox:1.37
+      command: ["sleep", "infinity"]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 32Mi
+  terminationGracePeriodSeconds: 5

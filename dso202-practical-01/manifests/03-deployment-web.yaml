@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  namespace: dso202-practical
+  labels:
+    app: web
+    tier: frontend
+    managed-by: deployment
+  annotations:
+    kubernetes.io/change-cause: "initial deployment of nginx:1.30-alpine"
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+
+  selector:
+    matchLabels:
+      app: web
+      managed-by: deployment
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  template:
+    metadata:
+      labels:
+        app: web
+        tier: frontend
+        managed-by: deployment
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.30-alpine
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /index.html
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+      terminationGracePeriodSeconds: 5

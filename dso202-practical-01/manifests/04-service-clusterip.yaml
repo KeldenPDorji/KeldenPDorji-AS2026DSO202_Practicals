@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+  namespace: dso202-practical
+  labels:
+    app: web
+    managed-by: declarative
+spec:
+  type: ClusterIP
+  selector:
+    app: web
+    managed-by: deployment
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
