@@ -8,6 +8,7 @@ BE in Software Engineering.
 | Directory | Topic |
 | --- | --- |
 | `dso202-practical-01/` | Local Kubernetes cluster with kind; core kubectl operations |
+| `dso202-practical-02/` | Persistent storage and StatefulSets; PostgreSQL as a stateful workload |
 
 Each directory is self-contained and carries its own README with the setup,
 rebuild and cleanup steps for that piece of work.
