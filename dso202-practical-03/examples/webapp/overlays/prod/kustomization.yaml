@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: webapp-prod
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/environment: prod
+    includeSelectors: false
+    includeTemplates: true
+
+# Applied to every generated object, including the Pod template.
+commonAnnotations:
+  training.example.com/change-policy: approval-required
+
+replicas:
+  - name: webapp
+    count: 3
+
+# Prod stays on the proven minor.
+images:
+  - name: nginx
+    newTag: 1.30-alpine
+
+configMapGenerator:
+  - name: web-content
+    behavior: replace
+    files:
+      - index.html
+
+# Strategic merge patch: states only the fields prod changes.
+patches:
+  - path: patch-resources.yaml

@@ -1,0 +1,19 @@
+# Strategic merge patch. The container is matched by its name ("nginx"),
+# not by list position. Only the fields written here change; every other
+# field of the base Deployment - including requests.cpu, which is
+# deliberately not mentioned - is kept from the base.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+spec:
+  template:
+    spec:
+      containers:
+        - name: nginx
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi

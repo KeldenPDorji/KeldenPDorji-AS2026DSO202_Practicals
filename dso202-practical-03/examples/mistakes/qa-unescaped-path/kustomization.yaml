@@ -1,0 +1,18 @@
+# DELIBERATELY BROKEN - kept as evidence for the report's reflection.
+# This is the first version of the QA annotation patch, before the "/" in
+# the annotation key was escaped. Rendering it fails; it is never applied.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: webapp-qa
+
+resources:
+  - ../../webapp/base
+
+patches:
+  - path: patch-annotation.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: webapp

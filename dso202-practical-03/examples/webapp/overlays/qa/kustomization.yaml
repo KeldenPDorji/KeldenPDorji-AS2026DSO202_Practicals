@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: webapp-qa
+
+resources:
+  - ../../base
+  - namespace.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/environment: qa
+    includeSelectors: false
+    includeTemplates: true
+
+replicas:
+  - name: webapp
+    count: 2
+
+configMapGenerator:
+  - name: web-content
+    behavior: replace
+    files:
+      - index.html
+
+# JSON 6902 patch: an explicit operation list. Unlike a strategic merge
+# patch, it cannot find its own target, so the target is named here.
+patches:
+  - path: patch-annotation.yaml
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: webapp

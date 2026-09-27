@@ -1,0 +1,7 @@
+# JSON 6902 patch (RFC 6902 operations, RFC 6901 paths).
+# The annotation key contains "/", which is the JSON Pointer path separator,
+# so it must be escaped as "~1". "add" on an existing parent map inserts
+# one key; the base annotation training.example.com/course is kept.
+- op: add
+  path: /metadata/annotations/training.example.com~1owner
+  value: qa-team

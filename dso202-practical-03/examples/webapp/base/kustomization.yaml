@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# Common identity labels, added to every object's metadata and to the Pod
+# template. includeSelectors is false because the selector is already
+# written in deployment.yaml and service.yaml, and a selector is immutable
+# once a Deployment exists. app.kubernetes.io/name must be here as well as in
+# the selector: without it the Deployment object itself carries no name label
+# and 'kubectl get deploy -l app.kubernetes.io/name=webapp' finds nothing.
+labels:
+  - pairs:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/part-of: dso202-practical-03
+    includeSelectors: false
+    includeTemplates: true
+
+# Generates ConfigMap "web-content-<hash>" from index.html. The hash is
+# derived from the content, so any change to the file produces a new name.
+configMapGenerator:
+  - name: web-content
+    files:
+      - index.html

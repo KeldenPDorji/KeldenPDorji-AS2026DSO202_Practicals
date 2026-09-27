@@ -1,0 +1,6 @@
+# WRONG: the "/" inside the annotation key is read as a path separator, so
+# the pointer means annotations -> "training.example.com" -> "owner", and
+# the intermediate key "training.example.com" does not exist.
+- op: add
+  path: /metadata/annotations/training.example.com/owner
+  value: qa-team
