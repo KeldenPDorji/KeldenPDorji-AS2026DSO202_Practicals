@@ -1,4 +1,4 @@
-# DSO202 — Practical 3 Report
+# DSO202 — Practical 5 Report
 
 **Environment-Specific Configuration with Kustomize on Kind**
 
@@ -6,10 +6,10 @@
 | --- | --- |
 | Module | DSO202 — Scaling, Orchestration, Monitoring & Observability |
 | Programme | BE in Software Engineering |
-| Practical | 3 of 10 |
+| Practical | 5 of 10 |
 | Tool | kind (Kubernetes IN Docker), Kustomize built into kubectl |
 | Date carried out | 27 September 2026 |
-| Repository path | `dso202-practical-03/` |
+| Repository path | `dso202-practical-05/` |
 
 All screenshots referenced below are in `evidence/`, numbered in the order they
 were captured. A suffix `b` marks a supplementary frame taken to show output
@@ -19,7 +19,7 @@ that the original frame cut off.
 
 ## 1. Objective
 
-Practicals 1 and 2 wrote one manifest per object and applied it to one
+Earlier practicals wrote one manifest per object and applied it to one
 namespace. That works for one environment. A real application runs in several
 environments at once, such as development, staging and production. The
 objects are almost identical across them. They differ in a handful of values:
@@ -97,6 +97,14 @@ supplied, so the base, the four environment overlays and the sandbox overlay
 were written for this practical. They follow the structure the handout
 specifies. A fifth directory, `examples/mistakes/qa-unescaped-path/`, keeps
 the first, broken version of the QA patch as evidence for §5.
+
+The work was carried out in a directory named `dso202-practical-03/`, which
+was renamed to `dso202-practical-05/` afterwards to match the module's
+practical numbering. The screenshots therefore show `dso202-practical-03` in
+the shell prompt, and three identifiers keep their original values so that the
+repository matches the evidence: the kind cluster `dso202-p3`, its context
+`kind-dso202-p3`, and the label value `app.kubernetes.io/part-of:
+dso202-practical-03`.
 
 ---
 

@@ -1,4 +1,4 @@
-# DSO202 - Practical 3
+# DSO202 - Practical 5
 
 **Environment-specific configuration with Kustomize on kind**
 
@@ -7,7 +7,7 @@ Programme: BE in Software Engineering
 
 ## Purpose
 
-Practicals 1 and 2 applied one manifest per object to one namespace. This
+Earlier practicals applied one manifest per object to one namespace. This
 practical deploys the same application to several environments - dev,
 staging, prod and a QA environment written as part of the work - **without
 copying the base Deployment or Service**.
@@ -53,7 +53,7 @@ which triggers a rollout.
 ## Repository layout
 
 ```
-dso202-practical-03/
+dso202-practical-05/
 ├── README.md                              # this file
 ├── cluster/
 │   └── kind-cluster.yaml                  # three nodes: control-plane, worker-node-1, worker-node-2
@@ -74,8 +74,13 @@ dso202-practical-03/
 │       └── qa-unescaped-path/             # DELIBERATELY BROKEN first QA patch; never applied
 ├── evidence/                              # screenshots (.png)
 └── report/
-    └── practical-03-report.md             # the assessed report
+    └── practical-05-report.md             # the assessed report
 ```
+
+> **Naming.** This directory was created as `dso202-practical-03` and renamed
+> afterwards. The cluster name `dso202-p3` and the label value
+> `app.kubernetes.io/part-of: dso202-practical-03` keep their original values
+> so that the repository matches the screenshots in `evidence/`.
 
 Two conventions are deliberate. **No overlay contains a Deployment or a
 Service** - only the fields that differ. And no base object carries a
@@ -84,7 +89,7 @@ own `namespace.yaml`.
 
 ## Rebuild from an empty machine
 
-Run from this directory (`dso202-practical-03/`).
+Run from this directory (`dso202-practical-05/`).
 
 ```bash
 # 0. Tooling.

@@ -1,6 +1,6 @@
 # =============================================================================
 # File        : cluster/kind-cluster.yaml
-# Practical   : DSO202 Practical 3
+# Practical   : DSO202 Practical 5
 # Purpose     : Three-node cluster for the Kustomize practical. No host mounts
 #               and no port mappings are needed: the application is reached
 #               with 'kubectl port-forward', and all state lives in ConfigMaps.
