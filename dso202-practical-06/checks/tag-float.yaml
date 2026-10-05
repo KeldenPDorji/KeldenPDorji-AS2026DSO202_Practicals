@@ -1,0 +1,4 @@
+# Failure 3 input (Demo Stage 5): an unquoted image tag.
+# YAML reads 1.30 as the floating-point number 1.3, not the string "1.30".
+image:
+  tag: 1.30

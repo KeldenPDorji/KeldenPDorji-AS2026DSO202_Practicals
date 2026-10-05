@@ -1,10 +1,10 @@
-# DSO202 — Practical 2 Report
+# DSO202 - Practical 2 Report
 
 **Implementing Persistent Storage for a Stateful Application in Kubernetes**
 
 | Field | Detail |
 | --- | --- |
-| Module | DSO202 — Scaling, Orchestration, Monitoring & Observability |
+| Module | DSO202 - Scaling, Orchestration, Monitoring & Observability |
 | Programme | BE in Software Engineering |
 | Practical | 2 of 10 |
 | Tool | kind (Kubernetes IN Docker) |
@@ -26,14 +26,14 @@ any Pod.
 
 Two separate bodies of work were needed, and they were done in order.
 
-The first is the **storage layer** — PersistentVolumes, PersistentVolumeClaims
+The first is the **storage layer** - PersistentVolumes, PersistentVolumeClaims
 and StorageClasses. These objects answer where bytes are written, and what
 happens to those bytes when the Pod, the claim, or the whole workload
 disappears. Static provisioning was done first, deliberately, because it
 separates two ideas that dynamic provisioning presents together: *matching a
 claim to a volume*, and *creating the volume in the first place*.
 
-The second is the **controller built for stateful workloads** — the
+The second is the **controller built for stateful workloads** - the
 StatefulSet. A Deployment treats its Pods as interchangeable copies. A database
 replica is not interchangeable with another, because each one owns a specific
 disk. Before introducing the StatefulSet, a Deployment with three replicas was
@@ -44,8 +44,8 @@ The practical closed by running PostgreSQL 18 as a StatefulSet on a retaining
 StorageClass, creating a table, inserting rows, deleting the database Pod, and
 reading the rows back through its replacement.
 
-**Descriptor sections covered:** Unit I — 1.2.5, 1.4.1, 1.4.2, 1.4.3, 1.5.3;
-Unit II — 2.1.1, 2.1.2, 2.1.3, 2.1.4.
+**Descriptor sections covered:** Unit I - 1.2.5, 1.4.1, 1.4.2, 1.4.3, 1.5.3;
+Unit II - 2.1.1, 2.1.2, 2.1.3, 2.1.4.
 **Learning outcomes:** LO4 primarily; LO1, LO2 and LO3 reinforced.
 
 ---
@@ -58,7 +58,7 @@ Unit II — 2.1.1, 2.1.2, 2.1.3, 2.1.4.
 | Docker Desktop | 29.0.1 |
 | kind | v0.32.0 (go1.26.3 darwin/arm64) |
 | kubectl | v1.36.3 (Kustomize v5.8.1) |
-| Kubernetes (cluster) | v1.36.1 — `kindest/node:v1.36.1`, pinned by digest |
+| Kubernetes (cluster) | v1.36.1 - `kindest/node:v1.36.1`, pinned by digest |
 | Node OS / kernel | Debian GNU/Linux 13 (trixie), 6.12.54-linuxkit (arm64) |
 | Container runtime | containerd 2.3.1 |
 | Storage provisioner | `rancher.io/local-path` (installed by kind) |
@@ -67,9 +67,9 @@ Unit II — 2.1.1, 2.1.2, 2.1.3, 2.1.4.
 
 | Image | Role | Version observed at runtime |
 | --- | --- | --- |
-| `busybox:1.37` | Volume writers, init container, client Pod | — |
-| `nginx:1.30-alpine` | `webnote` StatefulSet | — |
-| `nginx:1.31-alpine` | Rolling-update target (Stage 6) | — |
+| `busybox:1.37` | Volume writers, init container, client Pod | - |
+| `nginx:1.30-alpine` | `webnote` StatefulSet | - |
+| `nginx:1.31-alpine` | Rolling-update target (Stage 6) | - |
 | `postgres:18-alpine` | The stateful application | PostgreSQL 18.6 on aarch64-unknown-linux-musl |
 
 ### Version-skew correction carried over from Practical 1
@@ -100,7 +100,7 @@ one.
 
 ## 3. Procedure and Observations
 
-### 3.1 Stage 1 — Cluster and the storage landscape
+### 3.1 Stage 1 - Cluster and the storage landscape
 
 A three-node cluster was created from `cluster/kind-cluster.yaml`, with
 `/tmp/dso202-p2-storage` bind-mounted into the first worker at
@@ -109,7 +109,7 @@ because kind binds it at creation time.
 
 **Evidence: `01-stage1-cluster-nodes-mount`.** The creation output includes the
 line `Installing StorageClass`, which is the moment kind adds the storage
-provisioner as a cluster add-on in the same way it installs a CNI plugin — a
+provisioner as a cluster add-on in the same way it installs a CNI plugin - a
 cluster built by hand with `kubeadm` has neither. All three nodes report
 `Ready` on v1.36.1 under the names set by the `kubeadmConfigPatches`
 (`control-plane`, `worker-node-1`, `worker-node-2`), and the `-L` output
@@ -133,18 +133,18 @@ rejection in the same stage, and the two reclaim policies diverge visibly in
 Stage 8. The provisioner Pod runs `1/1` in its own `local-path-storage`
 namespace, and its ConfigMap gives the authoritative answer for where volumes
 are written: `/var/local-path-provisioner`. The ResourceQuota shows the three
-storage constraints added for this practical — a cap on the number of claims
+storage constraints added for this practical - a cap on the number of claims
 (12), a cap on total requested storage (20Gi), and two per-class caps
 (`standard` 12Gi of storage; `dso202-retain` 4 claims).
 
 *This stage shows that dynamic provisioning is performed by an identifiable Pod
 writing to an identifiable path, not by the control plane itself.*
 
-### 3.2 Stage 2 — Static provisioning and the meaning of Retain
+### 3.2 Stage 2 - Static provisioning and the meaning of Retain
 
 **Evidence: `03-stage2-static-bind-and-placement`.** The PersistentVolume was
 created first and reported `Available`. The claim then bound **immediately**,
-at an age of 9 seconds — no waiting, unlike Stage 3. The reason is in the same
+at an age of 9 seconds - no waiting, unlike Stage 3. The reason is in the same
 frame: `kubectl get storageclass manual` returns
 `Error from server (NotFound)`. No StorageClass object named `manual` exists,
 so no provisioner and no binding mode were involved. The name is only a
@@ -162,24 +162,24 @@ behind the failure in Stage 4.
 **Evidence: `04-stage2-released-and-data-intact`.** The Pod was deleted and
 recreated; `ledger.txt` then held two lines, the first written by a Pod that no
 longer existed. The claim was then deleted, and the PV moved to phase
-**`Released`** — not `Available` — with the `CLAIM` column still naming
+**`Released`** - not `Available` - with the `CLAIM` column still naming
 `dso202-practical-02/pvc-web-static`, a claim that no longer exists. This is
 the Retain contract working as designed: Kubernetes will not hand a volume that
 may hold one workload's data to the next claim that comes along.
 
 The same frame reads the file **from the host**, showing both lines still
-present, then deletes the PersistentVolume and lists the directory again —
+present, then deletes the PersistentVolume and lists the directory again -
 `ledger.txt` is still there, 128 bytes. *Deleting a PersistentVolume deleted an
 entry in the Kubernetes API. It did not delete a single byte.* This screenshot
 also serves as the host-side read for §3.2 generally, since `03` was cropped
 before its final `cat`.
 
-**Evidence: `05-stage2-ledger-three-lines`.** All three objects — volume, claim
-and Pod — were recreated from scratch, and the file holds **three** timestamped
+**Evidence: `05-stage2-ledger-three-lines`.** All three objects - volume, claim
+and Pod - were recreated from scratch, and the file holds **three** timestamped
 lines. A brand-new PV object, a brand-new claim and a brand-new Pod adopted
 data written before any of them existed.
 
-### 3.3 Stage 3 — Dynamic provisioning, and two uncomfortable truths
+### 3.3 Stage 3 - Dynamic provisioning, and two uncomfortable truths
 
 **Evidence: `06-stage3-pending-then-bound`.** The claim alone reported
 `Pending`, and `kubectl describe` gave the reason rather than leaving it to be
@@ -192,7 +192,7 @@ Normal  WaitForFirstConsumer  ...  persistentvolume-controller
 
 This claim was not broken. The `standard` class uses `WaitForFirstConsumer`, so
 the control plane refuses to choose storage until it knows which node the Pod
-will run on — choosing earlier would risk creating a volume on a node where the
+will run on - choosing earlier would risk creating a volume on a node where the
 Pod cannot be scheduled. A Pending claim on such a class, with no Pod referring
 to it, is correct behaviour.
 
@@ -229,12 +229,12 @@ loudly. The choice of class is a decision about the future of a workload, taken
 before any data exists.
 
 Deleting the claim then removed the volume object *and* the directory on the
-node — `kubectl get pv` shows only the static volume remaining, and the
+node - `kubectl get pv` shows only the static volume remaining, and the
 `docker exec … ls` prints nothing. One field, `reclaimPolicy` on the
 StorageClass, produced the entire difference from Stage 2, and it was chosen by
 whoever created the class rather than by whoever wrote the claim.
 
-### 3.4 Stage 4 — Why a Deployment cannot own state
+### 3.4 Stage 4 - Why a Deployment cannot own state
 
 **This stage is a demonstration of failure, not of success.** A Deployment with
 three replicas was deliberately pointed at one claim, which is something that
@@ -243,13 +243,13 @@ must never be done in production.
 **Evidence: `08-stage4-three-observations`.** All three observations are in one
 frame.
 
-**Observation 1 — the volume dictated placement.** All three replicas were
+**Observation 1 - the volume dictated placement.** All three replicas were
 scheduled onto `worker-node-2`, although the Deployment expresses no node
 preference at all. The claim bound to a volume that exists on one node, so no
 other node could accept these Pods. The scheduler's freedom was removed by a
 storage decision.
 
-**Observation 2 — there is one set of data, not three.** All three replicas
+**Observation 2 - there is one set of data, not three.** All three replicas
 appended to the *same* `visitors.log` on the *same* volume:
 
 ```
@@ -263,23 +263,23 @@ database processes writing to the same data directory corrupt it. Nothing in a
 Deployment specification can give each replica its own volume, because the
 claim is named once in the Pod template and every replica uses that template.
 
-**Observation 3 — no replica has an identity that survives.** After deleting
+**Observation 3 - no replica has an identity that survives.** After deleting
 all three, the replacements came back as `-8f57s`, `-dbqd7` and `-pp6zb`.
 Every name is new. There is no way for an application, a monitoring system or
 another Pod to refer to "the first replica" and mean the same process before
-and after a restart — and replicated databases require exactly that, because
+and after a restart - and replicated databases require exactly that, because
 members must find each other by a name that outlasts any individual Pod.
 
 **A fourth failure that this cluster hid.** On a managed cloud cluster this
 experiment normally produces a multi-attach error, because the volume is a
 network disk attached to one node and any replica scheduled elsewhere never
 starts. Here all three replicas were forced onto the same node, and
-`ReadWriteOnce` permits multiple Pods on **one node** — it does not mean one
-Pod — so the misconfiguration ran without complaint. A configuration that
+`ReadWriteOnce` permits multiple Pods on **one node** - it does not mean one
+Pod - so the misconfiguration ran without complaint. A configuration that
 appears to work locally and fails in production is exactly why the local
 cluster is a teaching environment and not a substitute for one.
 
-### 3.5 Stage 5 — StatefulSets and stable identity
+### 3.5 Stage 5 - StatefulSets and stable identity
 
 **Evidence: `09-stage5-headless-service`.** The headless Service was applied
 *before* the StatefulSet, so that the Pods were addressable from the moment
@@ -327,13 +327,13 @@ individual names were confirmed instead by fetching each Pod directly.)
 
 A line was then appended by hand to `webnote-0`'s page only. `webnote-0`
 returns it; `webnote-1` does not. Three replicas of one workload, three
-different files — precisely what Stage 4 could not achieve.
+different files - precisely what Stage 4 could not achieve.
 
 **Evidence: `11-stage5-identity-survives-deletion`.** `webnote-1` was deleted
 and its replacement examined. Four facts, all in one frame:
 
-1. **The name is unchanged** — still `webnote-1`.
-2. **The claim was reattached, not recreated** — `content-webnote-1` is still
+1. **The name is unchanged** - still `webnote-1`.
+2. **The claim was reattached, not recreated** - `content-webnote-1` is still
    bound to the same volume `pvc-2bfce558-…`, and its age went 20m → 21m,
    spanning the deletion.
 3. **The `created:` line still carries its original timestamp**,
@@ -344,10 +344,10 @@ and its replacement examined. Four facts, all in one frame:
 Point 4 is exactly why an application must be configured with the DNS name and
 never with an address.
 
-### 3.6 Stage 6 — Scaling, retention and ordered updates
+### 3.6 Stage 6 - Scaling, retention and ordered updates
 
 **Evidence: `12-stage6-scale-retain-and-timestamp`.** Scaling to four replicas
-created a fourth claim from the same template — scaling a StatefulSet *up*
+created a fourth claim from the same template - scaling a StatefulSet *up*
 creates storage, and the namespace quota is what stands between a mistyped
 `--replicas=400` and a full disk.
 
@@ -364,7 +364,7 @@ The data of the removed replicas was kept because `whenScaled: Retain` is set
 (and is also the default). This is a safety decision, not an oversight: scaling
 down is frequently a reaction to a problem, and destroying data during an
 incident is unrecoverable. The cost is that unused claims accumulate and must
-be removed deliberately — which Stage 8 does.
+be removed deliberately - which Stage 8 does.
 
 Scaling back to three brought `webnote-2` back with its **original**
 `created: 2026-08-26T16:33:20Z` and a new `started: 2026-08-26T16:57:22Z`.
@@ -381,7 +381,7 @@ highest ordinal is always removed first, so the members that remain are always
 depends on this.
 
 **The partitioned rolling update.** `manifests/10-statefulset-webnote.yaml` was
-edited — not patched imperatively — to set
+edited - not patched imperatively - to set
 `updateStrategy.rollingUpdate.partition: 2` and change the image from
 `nginx:1.30-alpine` to `nginx:1.31-alpine`. Applying it updated **only ordinal
 2**, leaving ordinals 0 and 1 on the old image, because `partition: 2`
@@ -394,8 +394,8 @@ Pods were updated in descending order, one at a time. This is how a new version
 is tried on one member of a stateful set before the rest is committed to it,
 and it has no equivalent in a Deployment.
 
-> **Evidence gap, stated honestly.** The intermediate frame — the moment when
-> only `webnote-2` carried `nginx:1.31-alpine` — was not captured. The first
+> **Evidence gap, stated honestly.** The intermediate frame - the moment when
+> only `webnote-2` carried `nginx:1.31-alpine` - was not captured. The first
 > screenshot attempt caught only the completed rollout, and a second attempt
 > was applied before the manifest edit had been made, so it recorded no change
 > at all. Rather than submit a screenshot that shows something other than what
@@ -404,14 +404,14 @@ and it has no equivalent in a Deployment.
 > the end state: all Pods running `nginx:1.31-alpine`.
 
 **Evidence: `14-stage6-delete-sts-keep-data`.** The StatefulSet itself was
-deleted. Every Pod went (`No resources found`), and **every claim remained** —
-`wc -l` returns `4` — because `whenDeleted: Retain` is set. On this cluster,
+deleted. Every Pod went (`No resources found`), and **every claim remained** -
+`wc -l` returns `4` - because `whenDeleted: Retain` is set. On this cluster,
 deleting a StatefulSet is a recoverable mistake.
 
 Recreating it brought the workload back with its data intact. `webnote-1` still
-serves `created: 2026-08-26T16:32:53Z` — the timestamp written back in Stage 5,
+serves `created: 2026-08-26T16:32:53Z` - the timestamp written back in Stage 5,
 before the scale-up, the scale-down, the rolling update to a new nginx version,
-and the deletion of the controller itself — with one further `started:` line
+and the deletion of the controller itself - with one further `started:` line
 appended for each of those events:
 
 ```
@@ -427,7 +427,7 @@ started: 2026-08-26T17:43:21Z on worker-node-2
 That file is the clearest single piece of evidence in the practical: the volume
 outlived every object that ever used it.
 
-### 3.7 Stage 7 — A real stateful application: PostgreSQL
+### 3.7 Stage 7 - A real stateful application: PostgreSQL
 
 **Evidence: `15-stage7-postgres-ready-and-storage`.**
 
@@ -452,14 +452,14 @@ know how many replicas exist or which ordinal is currently primary.
 
 *Readiness.* The Pod reached `1/1 Running`, and the log ends with
 `database system is ready to accept connections`. The gap between the container
-starting and the Pod becoming `1/1` is the readiness probe doing its work — and
+starting and the Pod becoming `1/1` is the readiness probe doing its work - and
 during that window no Service would have routed a connection to it. A database
 without a readiness probe is added to its Service the moment its process
 starts, which produces connection errors in the application while
 initialisation is still running.
 
 *Storage.* `data-postgres-0` is `Bound`, **2Gi**, on the **`dso202-retain`**
-class, and its PersistentVolume carries `RECLAIM POLICY Retain` — inherited
+class, and its PersistentVolume carries `RECLAIM POLICY Retain` - inherited
 from the class, not from the claim. This is the standard production choice for
 a database: an accidental `kubectl delete pvc` must not be able to destroy the
 data. The corresponding cost appears in Stage 8.
@@ -512,8 +512,8 @@ LOG:  database system was shut down at 2026-08-26 17:48:22 UTC
 ```
 
 There is no `init process complete` line this time, because the data directory
-already existed and initialisation was skipped. The clean-shutdown message —
-rather than a recovery message — is the result of
+already existed and initialisation was skipped. The clean-shutdown message -
+rather than a recovery message - is the result of
 `terminationGracePeriodSeconds: 60`, which gave the database time to finish
 writing and close its files. Too short a grace period means the process is
 killed and must replay its write-ahead log on the next start.
@@ -525,7 +525,7 @@ Both Service names resolve, and they resolve to different things:
 | `postgres.dso202-practical-02.svc.cluster.local` | `10.96.184.125` (ClusterIP) | An application's connection string |
 | `postgres-0.postgres-headless.dso202-practical-02.svc.cluster.local` | `10.244.2.27` (Pod IP) | A backup job or replication peer needing one specific instance |
 
-### 3.8 Stage 8 — Cleanup, and the cost of Retain
+### 3.8 Stage 8 - Cleanup, and the cost of Retain
 
 Evidence was captured before anything was deleted:
 `final-state-all.txt`, `final-state-storage.txt`,
@@ -535,8 +535,8 @@ and `setval('public.tasks_id_seq', 3, true)`). **The dump is the backup; the
 retained volume is not**, because a single mistaken command can destroy a
 volume and its data together.
 
-**Evidence: `17-stage8-reclaim-policies-diverge`.** Every workload was deleted —
-both StatefulSets, the client Pod and the static writer — and `kubectl get pods`
+**Evidence: `17-stage8-reclaim-policies-diverge`.** Every workload was deleted -
+both StatefulSets, the client Pod and the static writer - and `kubectl get pods`
 returned `No resources found`. **Six claims survived**, holding storage for
 workloads that no longer existed. Deleting a StatefulSet does not delete the
 claims it generated, and `kubectl delete -f manifests/` never will, because
@@ -587,7 +587,7 @@ description of storage, and never the storage itself.**
 
 One command in this frame produced no output:
 `docker exec dso202-p2-worker ls /var/local-path-provisioner`. That is not a
-failure — `postgres-0` had been scheduled onto **worker-node-2** (its Pod IP
+failure - `postgres-0` had been scheduled onto **worker-node-2** (its Pod IP
 was `10.244.2.27`), so the released directory was on `dso202-p2-worker2` and
 the command interrogated the wrong node. The general point it was meant to make
 still holds and is a cloud-cost consideration: storage released by Kubernetes
@@ -605,7 +605,7 @@ The field is `volumeBindingMode` on the StorageClass, set to
 `WaitForFirstConsumer` (`02-stage1-storage-landscape`).
 
 The Stage 2 claim named `storageClassName: manual`, and **no StorageClass
-object of that name exists** — `03-stage2-static-bind-and-placement` shows the
+object of that name exists** - `03-stage2-static-bind-and-placement` shows the
 `NotFound` error. With no class object there is no binding mode to apply, so
 the control plane matched the claim against `Available` volumes immediately and
 bound it within seconds.
@@ -614,8 +614,8 @@ The Stage 3 claim named `standard`, whose binding mode is
 `WaitForFirstConsumer`, so binding was deferred until a Pod existed
 (`06-stage3-pending-then-bound`). The design reasoning is that this provisioner
 creates node-local storage. If the volume were created as soon as the claim
-appeared, it could land on a node the Pod cannot be scheduled to — because of
-taints, resource pressure or affinity rules — and the Pod would then be
+appeared, it could land on a node the Pod cannot be scheduled to - because of
+taints, resource pressure or affinity rules - and the Pod would then be
 permanently unschedulable with a `volume node affinity conflict`. Deferring
 until the scheduler has picked a node guarantees the volume is created where
 the Pod will actually run. The cost is that a Pending claim with no consumer is
@@ -629,7 +629,7 @@ Two different objects carried it, which is itself the point.
 
 For the **static** volume the field is `persistentVolumeReclaimPolicy: Retain`,
 written directly on the PersistentVolume in `03-pv-static.yaml`. For the
-**dynamic** volume the field is `reclaimPolicy` on the StorageClass — the
+**dynamic** volume the field is `reclaimPolicy` on the StorageClass - the
 `standard` class sets `Delete`, and every PV it creates inherits it. Nothing in
 the claim can override this: `06-stage3-pending-then-bound` shows the
 auto-created PV carrying `Delete` although the claim never mentions a policy.
@@ -648,7 +648,7 @@ would have happened on a managed cloud cluster using a zonal disk.**
 
 The mechanism is a chain. The Deployment names one PVC in its Pod template, so
 all three replicas use the same claim. That claim is on the `standard` class,
-whose provisioner creates a directory on **one specific node** — the node the
+whose provisioner creates a directory on **one specific node** - the node the
 first Pod was scheduled to. The resulting PersistentVolume declares node
 affinity for that node. From then on the scheduler cannot place any Pod using
 that claim anywhere else, so all three replicas landed on `worker-node-2`
@@ -659,7 +659,7 @@ On a managed cloud cluster with a zonal disk (EBS, Persistent Disk), the volume
 is a network device attachable to **one node at a time**. The first replica
 would start; the others, scheduled onto different nodes, would remain
 `ContainerCreating` indefinitely with a **multi-attach error** in their events
-— `Volume is already exclusively attached to one node and can't be attached to
+- `Volume is already exclusively attached to one node and can't be attached to
 another`. The misconfiguration would fail loudly there. Locally it succeeded
 silently, because all three Pods were forced onto one node and `ReadWriteOnce`
 means one *node*, not one *Pod*.
@@ -676,15 +676,15 @@ that the *second replica* is ordinal 1, since ordinals start at 0.
 
 Every one of the following must exist:
 
-1. **The Pod `webnote-1`** — and it must be **Ready**, because
+1. **The Pod `webnote-1`** - and it must be **Ready**, because
    `publishNotReadyAddresses` is `false` (the default), so unready Pods are
    withheld from DNS.
-2. **The headless Service `webnote`** — it must have `clusterIP: None`. A
+2. **The headless Service `webnote`** - it must have `clusterIP: None`. A
    normal ClusterIP Service publishes one virtual address and no per-Pod
    records at all.
-3. **A matching selector** — the Service's `selector: app=webnote` must match
+3. **A matching selector** - the Service's `selector: app=webnote` must match
    the Pod's labels, or the Pod is not an endpoint.
-4. **The StatefulSet's `serviceName: webnote`** — this field must name that
+4. **The StatefulSet's `serviceName: webnote`** - this field must name that
    exact Service. Without it the per-Pod records are never created, even though
    the Pods are healthy.
 5. **The namespace `dso202-practical-02`**, which forms the third label.
@@ -709,9 +709,9 @@ while only two Pods ran, and `webnote-2` returning with its **original**
 
 The two fields are both under `persistentVolumeClaimRetentionPolicy`:
 
-- **`whenScaled`** — governs claims of Pods removed by a scale-down. Default
+- **`whenScaled`** - governs claims of Pods removed by a scale-down. Default
   **`Retain`**.
-- **`whenDeleted`** — governs claims when the StatefulSet itself is deleted.
+- **`whenDeleted`** - governs claims when the StatefulSet itself is deleted.
   Default **`Retain`**.
 
 Both were set explicitly to `Retain` in `10-statefulset-webnote.yaml`, matching
@@ -726,13 +726,13 @@ directory would produce on a volume that is not empty.**
 From PostgreSQL 18 the official image places its data directory at
 `/var/lib/postgresql/18/docker` and declares `/var/lib/postgresql` as the
 volume location. Mounting at the parent therefore puts the data inside the
-volume while leaving the data directory itself one level down — confirmed in
+volume while leaving the data directory itself one level down - confirmed in
 `15-stage7-postgres-ready-and-storage`, where `$PGDATA` is
 `/var/lib/postgresql/18/docker` and `ls /var/lib/postgresql` shows only `18`.
 
 The general rule matters more than the version detail. `initdb` **refuses to
 initialise a directory that is not empty**, and a freshly provisioned volume is
-not guaranteed to be empty — a storage driver may leave entries behind, most
+not guaranteed to be empty - a storage driver may leave entries behind, most
 famously `lost+found` on a formatted ext4 volume. Mounting the volume directly
 onto the data directory therefore makes the database's first start depend on
 which storage backend is underneath, which is the worst possible property: it
@@ -740,7 +740,7 @@ succeeds on some and fails on others.
 
 The failure is specific and diagnosable. The container exits during
 initialisation with a message that the data directory is not empty, the Pod
-enters **`CrashLoopBackOff`**, and — the detail that makes it confusing — it
+enters **`CrashLoopBackOff`**, and - the detail that makes it confusing - it
 only ever fails on the *first* start, because a successfully initialised volume
 never hits the check again. It is read with
 `kubectl logs postgres-0 --previous`. For PostgreSQL 17 and earlier, whose data
@@ -751,19 +751,19 @@ path and set `subPath: pgdata` on the mount.
 the mechanism or software category that provides each in production.**
 
 **It does not replicate data.** Three replicas produce three independent
-volumes containing three unrelated sets of data — demonstrated directly in
+volumes containing three unrelated sets of data - demonstrated directly in
 `10-stage5-dns-and-private-volumes`, where a line written into `webnote-0` was
 absent from `webnote-1`. Replication is a property of the *application*, not of
 the controller, and this is why `14-statefulset-postgres.yaml` sets
 `replicas: 1`: a second replica of that manifest would be a second, empty,
 unrelated database. In production, replication and the leader election that
-goes with it are handled by an **Operator** — a controller that understands one
+goes with it are handled by an **Operator** - a controller that understands one
 specific database, such as CloudNativePG or Zalando's Postgres Operator
 (Unit II 2.4).
 
 **It does not perform backup.** A volume that survives Pod deletion is not a
 backup, because one mistaken command destroys the volume and the data together
-— and Stage 8 showed four volumes vanish with a single `kubectl delete pvc
+- and Stage 8 showed four volumes vanish with a single `kubectl delete pvc
 --all`. Nothing a StatefulSet does protects against a dropped table, since the
 drop is faithfully persisted. Production backup is a **logical dump or
 snapshot held outside the cluster**: `pg_dump` on a CronJob shipping to object
@@ -778,7 +778,7 @@ administrator must do to return that storage to service.**
 `Released` means the claim is gone but the volume **has not been reclaimed**,
 and the volume still holds the previous workload's data. Kubernetes will not
 move it to `Available`, because doing so would allow the next claim that
-happens to match on class, capacity and access modes to bind to it — and that
+happens to match on class, capacity and access modes to bind to it - and that
 claim might belong to an entirely different team or application. Handing one
 workload's data to another silently is precisely what the Retain policy exists
 to prevent. `17-stage8-reclaim-policies-diverge` shows both volumes still
@@ -794,8 +794,8 @@ must decide about the data first:
 
 1. **Recover or destroy the data**, according to whether it is still needed.
 2. Then either **delete the PV object and recreate it** pointing at the same
-   backing storage — which is what `18-stage8-final-asymmetry` does, deleting
-   `pv-web-static` and leaving `ledger.txt` untouched on the host — **or**
+   backing storage - which is what `18-stage8-final-asymmetry` does, deleting
+   `pv-web-static` and leaving `ledger.txt` untouched on the host - **or**
    clear the stale binding in place with
    `kubectl patch pv <name> -p '{"spec":{"claimRef": null}}'`, which returns
    the volume to `Available` with its data still on it.
@@ -819,7 +819,7 @@ the developer's own `kubectl delete`.
 
 The second difficulty was accepting that a `Pending` claim can be correct.
 Every instinct said something was broken, and the fix was to stop guessing and
-run `kubectl describe pvc` — the event said `waiting for first consumer to be
+run `kubectl describe pvc` - the event said `waiting for first consumer to be
 created before binding`, which is a statement of policy, not an error.
 
 ### Errors met, and how they were diagnosed
@@ -827,7 +827,7 @@ created before binding`, which is a statement of policy, not an error.
 **1. `zsh: no matches found: custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image`**
 
 This looked at first like a malformed `kubectl` flag. It is not a `kubectl`
-error at all — nothing was ever sent to the API server. The clue is the prefix
+error at all - nothing was ever sent to the API server. The clue is the prefix
 `zsh:`. The shell tried to expand `[0]` as a glob character class, found no
 matching filename, and refused to run the command. The fix is to quote the
 argument:
@@ -844,7 +844,7 @@ quoting in zsh, and the same applies to `kubectl explain ...[0]` paths.
 
 Running `kubectl scale statefulset webnote --replicas=3` followed immediately
 by `kubectl wait --for=condition=Ready pod/webnote-2` failed. The Pod genuinely
-did not exist yet — under `podManagementPolicy: OrderedReady` the controller
+did not exist yet - under `podManagementPolicy: OrderedReady` the controller
 brings up `webnote-1` and waits for it to be Ready before creating `webnote-2`,
 so there was nothing to wait *for* at the instant `wait` ran. This is a race
 between the command and the controller, not a fault.
@@ -864,7 +864,7 @@ in sequence.
 
 The first attempt at the Stage 1 screenshot ran `kubectl get nodes` about 13
 seconds after `kind create cluster` returned, and all three nodes showed
-`NotReady`. Nothing was wrong — the CNI plugin had not finished installing, and
+`NotReady`. Nothing was wrong - the CNI plugin had not finished installing, and
 a node without a working pod network is correctly reported as not ready.
 `kind create cluster` returns when the control plane answers, not when the
 cluster is fully converged. Inserting a deterministic wait fixed it:
@@ -886,7 +886,7 @@ rather than assumed.
 
 **Capture evidence in smaller frames.** The one genuine gap in this submission
 is the intermediate step of the partitioned rolling update. Two attempts failed
-for different reasons — the first captured only the completed rollout, and the
+for different reasons - the first captured only the completed rollout, and the
 second applied the manifest before the edit had been made, recording no change
 at all. Both failures share a cause: trying to capture a multi-step sequence in
 one screenshot, taken after the fact, instead of one screenshot per observable
@@ -897,7 +897,7 @@ reconstructed at the end.
 captured in Stage 8 proved more reliable than any screenshot: they cannot be
 cropped, they do not wrap, and they can be re-read afterwards. Running each
 significant command through `tee evidence/<name>.txt` would have made the
-screenshots a convenience rather than the primary record — and would have made
+screenshots a convenience rather than the primary record - and would have made
 the partition gap recoverable.
 
 **Fix `PATH` permanently rather than per-session.** The Docker Desktop
@@ -910,13 +910,13 @@ remove the whole class of problem.
 How a `Released` volume is handled at scale. Clearing `spec.claimRef` by hand
 is obviously fine for two volumes on a laptop, but a production cluster
 retiring hundreds of retained volumes cannot be operated that way, and it is
-not clear what the real practice is — whether it is a controller, a scheduled
+not clear what the real practice is - whether it is a controller, a scheduled
 reconciliation job, or simply an accepted operational cost that pushes teams
 towards `Delete` plus disciplined snapshots.
 
 Relatedly, the boundary between what a StatefulSet handles and what needs an
-Operator is clear in the two extreme cases — plain storage on one side,
-failover and resharding on the other — but not in the middle. It is not obvious
+Operator is clear in the two extreme cases - plain storage on one side,
+failover and resharding on the other - but not in the middle. It is not obvious
 where a simple primary/replica PostgreSQL pair falls, or how much of that can
 honestly be assembled from a StatefulSet, a headless Service and an init
 container before an Operator becomes the correct answer rather than an
@@ -928,37 +928,37 @@ indulgence.
 
 All accessed 26 August 2026.
 
-1. Kubernetes Documentation — *Persistent Volumes*.
+1. Kubernetes Documentation - *Persistent Volumes*.
    https://kubernetes.io/docs/concepts/storage/persistent-volumes/
    (Used for reclaim policies, PV phases, and the meaning of `Released`.)
-2. Kubernetes Documentation — *Storage Classes*.
+2. Kubernetes Documentation - *Storage Classes*.
    https://kubernetes.io/docs/concepts/storage/storage-classes/
    (Used for `volumeBindingMode`, `allowVolumeExpansion` and provisioner names.)
-3. Kubernetes Documentation — *StatefulSets*.
+3. Kubernetes Documentation - *StatefulSets*.
    https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
    (Used for the four guarantees, `podManagementPolicy` and
    `persistentVolumeClaimRetentionPolicy`.)
-4. Kubernetes Documentation — *StatefulSet Basics* and
+4. Kubernetes Documentation - *StatefulSet Basics* and
    *Update a StatefulSet*.
    https://kubernetes.io/docs/tasks/run-application/tune-statefulset-rolling-update/
    (Used for the `partition` field and partitioned rollouts.)
-5. Kubernetes Documentation — *DNS for Services and Pods*.
+5. Kubernetes Documentation - *DNS for Services and Pods*.
    https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
    (Used for headless Services and the per-Pod FQDN pattern.)
-6. Kubernetes Documentation — *Resource Quotas*.
+6. Kubernetes Documentation - *Resource Quotas*.
    https://kubernetes.io/docs/concepts/policy/resource-quotas/
    (Used for the per-StorageClass quota key format.)
-7. kind Documentation — *Configuration*.
+7. kind Documentation - *Configuration*.
    https://kind.sigs.k8s.io/docs/user/configuration/
    (Used for `extraMounts`, `kubeadmConfigPatches` and node naming.)
-8. rancher/local-path-provisioner — README.
+8. rancher/local-path-provisioner - README.
    https://github.com/rancher/local-path-provisioner
    (Used to confirm the node path and that requested capacity is not enforced.)
-9. Docker Hub — *postgres* official image documentation.
+9. Docker Hub - *postgres* official image documentation.
    https://hub.docker.com/_/postgres
    (Used for `PGDATA`, the PostgreSQL 18 data-directory change, and the
    `POSTGRES_*` environment variables.)
-10. PostgreSQL 18 Documentation — *pg_dump* and *Server Start-up*.
+10. PostgreSQL 18 Documentation - *pg_dump* and *Server Start-up*.
     https://www.postgresql.org/docs/18/
     (Used for the dump format and the shutdown/recovery log messages.)
 11. `kubectl explain` against the running v1.36.1 API server, for
@@ -968,7 +968,7 @@ All accessed 26 August 2026.
 
 ---
 
-## Appendix — Evidence index
+## Appendix - Evidence index
 
 | File | Stage | What it establishes |
 | --- | --- | --- |

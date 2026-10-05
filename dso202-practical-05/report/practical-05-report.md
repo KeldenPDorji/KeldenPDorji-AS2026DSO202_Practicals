@@ -1,10 +1,10 @@
-# DSO202 — Practical 5 Report
+# DSO202 - Practical 5 Report
 
 **Environment-Specific Configuration with Kustomize on Kind**
 
 | Field | Detail |
 | --- | --- |
-| Module | DSO202 — Scaling, Orchestration, Monitoring & Observability |
+| Module | DSO202 - Scaling, Orchestration, Monitoring & Observability |
 | Programme | BE in Software Engineering |
 | Practical | 5 of 10 |
 | Tool | kind (Kubernetes IN Docker), Kustomize built into kubectl |
@@ -60,7 +60,7 @@ The work covered:
 | Docker Desktop | 29.7.2 |
 | kind | v0.32.0 (go1.26.3 darwin/arm64) |
 | kubectl | v1.36.3, with Kustomize v5.8.1 built in |
-| Kubernetes (cluster) | v1.36.1 — `kindest/node:v1.36.1`, pinned by digest |
+| Kubernetes (cluster) | v1.36.1 - `kindest/node:v1.36.1`, pinned by digest |
 | Node OS / kernel | Debian GNU/Linux 13 (trixie), 7.0.12-linuxkit (arm64) |
 | Container runtime | containerd 2.3.1 |
 
@@ -110,7 +110,7 @@ dso202-practical-03`.
 
 ## 3. Procedure and Observations
 
-### 3.1 Task 0 — Pre-flight
+### 3.1 Task 0 - Pre-flight
 
 A three-node cluster, `dso202-p3`, was created from `cluster/kind-cluster.yaml`.
 The node names come from `kubeadmConfigPatches` and match the lab topology.
@@ -130,7 +130,7 @@ all `Ready` on v1.36.1. The client reports `gitVersion: v1.36.3` and
 `kustomizeVersion: v5.8.1`. A non-empty Kustomize version is the confirmation
 that this binary supports both `kubectl kustomize` and `-k`.
 
-### 3.2 Task 1 — Reading the repository before running it
+### 3.2 Task 1 - Reading the repository before running it
 
 **Evidence: `02-task1-repo-tree`.** The tree has 8 directories and 20 files.
 The base holds four files. Each overlay holds only an `index.html`, a
@@ -139,7 +139,7 @@ The base holds four files. Each overlay holds only an `index.html`, a
 is the whole point of the structure. The three questions set by the handout
 are answered in §4 (Q1).
 
-### 3.3 Task 2 — Rendering the base
+### 3.3 Task 2 - Rendering the base
 
 **Evidence: `03-task2-base-render`.** `kubectl kustomize examples/webapp/base`
 emitted three objects: a `ConfigMap`, a `Service` and a `Deployment`. Only two
@@ -163,7 +163,7 @@ never start. The checkpoint question is answered in §4 (Q2).
 The base was not applied. It has no namespace of its own and is not an
 environment. It is only an input to overlays.
 
-### 3.4 Task 3 — Comparing dev and prod without touching the cluster
+### 3.4 Task 3 - Comparing dev and prod without touching the cluster
 
 Both overlays were rendered to files in `/tmp` and compared with `diff -u`.
 No command in this task talks to the API server. The comparison is between
@@ -196,7 +196,7 @@ The principle stated in the handout holds. Every difference in that table can
 be traced to a line or two in the prod overlay, and the reviewer never had to
 read a second Deployment.
 
-### 3.5 Task 4 — Deploying dev safely
+### 3.5 Task 4 - Deploying dev safely
 
 **Render. Evidence: `05-task4-dev-rendered`** and
 **`05b-task4-dev-rendered-deployment`.** The full dev output shows four
@@ -230,7 +230,7 @@ automatically created `kube-root-ca.crt`.
 because the namespace is what separates the environments. The same name
 appears in all four namespaces in §3.8.
 
-### 3.6 Task 5 — Reaching the application
+### 3.6 Task 5 - Reaching the application
 
 **Evidence: `08-task5-curl-dev`.** In one terminal,
 `kubectl port-forward -n webapp-dev service/webapp 8080:80` forwarded local
@@ -245,7 +245,7 @@ The response proves the whole chain end to end. The overlay's `index.html`
 became a ConfigMap, the ConfigMap was mounted at `/usr/share/nginx/html`, and
 the Service selected the Pod serving it.
 
-### 3.7 Task 6 — Proving the ConfigMap hash → rollout chain
+### 3.7 Task 6 - Proving the ConfigMap hash → rollout chain
 
 **Before. Evidence: `09-task6-before-change`.**
 
@@ -295,7 +295,7 @@ someone prunes it.
 
 The explanation of the chain, required by the handout, is in §4 (Q3).
 
-### 3.8 Task 7 — Deploying staging and prod
+### 3.8 Task 7 - Deploying staging and prod
 
 **Evidence: `11-task7-all-environments`.** Both overlays went through
 diff → apply. Both first diffs returned the same `namespaces … not found`
@@ -338,7 +338,7 @@ the fix. A label added to the Deployment's own metadata does not alter the Pod
 template, so the Deployment controller had nothing to roll out. Compare §3.7,
 where a change that did alter the template replaced the Pod.
 
-### 3.9 Task 8 — What the prod patch changed
+### 3.9 Task 8 - What the prod patch changed
 
 **Evidence: `12-task8-prod-patch-merge`.** The frame shows the patch file, the
 base's rendered resources, and prod's rendered resources, one after another:
@@ -361,7 +361,7 @@ patch named a container that does not exist, it would **add** a second
 container with only a resources block, and the Deployment would then be
 rejected. A rendered-output check would catch that before the apply.
 
-### 3.10 Task 9 — The QA overlay
+### 3.10 Task 9 - The QA overlay
 
 The QA overlay was written to the requirements: namespace `webapp-qa`,
 2 replicas, environment label `qa`, its own `index.html`, the same base, and
@@ -410,7 +410,7 @@ it**. Both annotations are present, as is
 `kubectl apply` keeps in order to compute its next three-way merge.
 `replicas: 2` is also present.
 
-### 3.11 Challenge extension — `namePrefix` on a sandbox overlay
+### 3.11 Challenge extension - `namePrefix` on a sandbox overlay
 
 A sandbox overlay was added with `namePrefix: sandbox-` and namespace
 `webapp-sandbox`. It uses the same base and copies no base files. It was
@@ -427,9 +427,9 @@ field it knows to be a **reference** to a name.
 | ConfigMap name | `sandbox-web-content-<hash>` | `sandbox-web-content-448dt2mfcm` (line 24) | ✓ |
 | Deployment's volume reference to the ConfigMap | rewritten to the prefixed name | `sandbox-web-content-448dt2mfcm` (line 90) | ✓ |
 | Namespace object | not prefixed | `webapp-sandbox` (line 6) | ✓ |
-| Service selector, Deployment selector, Pod labels | unchanged — label **values** are not names | `app.kubernetes.io/name: webapp` (lines 41, 58, 63) | ✓ |
-| Container, port and volume names (`nginx`, `http`, `content`) | unchanged — not object names | unchanged | ✓ |
-| Hash suffix | uncertain | **same as base**: `448dt2mfcm` | — |
+| Service selector, Deployment selector, Pod labels | unchanged - label **values** are not names | `app.kubernetes.io/name: webapp` (lines 41, 58, 63) | ✓ |
+| Container, port and volume names (`nginx`, `http`, `content`) | unchanged - not object names | unchanged | ✓ |
+| Hash suffix | uncertain | **same as base**: `448dt2mfcm` | - |
 
 Every prediction held. The one open question had a clear answer: the hash is
 identical to the base's (`03-task2-base-render`). The generator computes the
@@ -445,7 +445,7 @@ references to object names. Kustomize's rule is not "prefix every string that
 looks like `webapp`". It prefixes names, and then only the fields it knows
 point at those names.
 
-### 3.12 Task 10 — Cleanup
+### 3.12 Task 10 - Cleanup
 
 Cleanup is deliberately left until after this report and its evidence are
 final, because deleting the namespaces destroys the live state the
@@ -756,44 +756,44 @@ practical did not have to make.
 
 All accessed 27 September 2026.
 
-1. Kubernetes Documentation — *Declarative Management of Kubernetes Objects
+1. Kubernetes Documentation - *Declarative Management of Kubernetes Objects
    Using Kustomize*.
    https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/
    (Used for bases and overlays, generators, `namePrefix`, and the
    `-k` flag.)
-2. Kustomize Documentation — *kustomization.yaml reference*
+2. Kustomize Documentation - *kustomization.yaml reference*
    (`configMapGenerator`, `labels`, `replicas`, `images`, `patches`,
    `commonAnnotations`).
    https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/
    (Used for field names valid in Kustomize v5, `includeTemplates`, and
    `behavior: replace`.)
-3. Kubernetes Documentation — *Update API Objects in Place Using kubectl
+3. Kubernetes Documentation - *Update API Objects in Place Using kubectl
    patch*.
    https://kubernetes.io/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/
    (Used for strategic merge semantics, merge keys and `$patch: delete`.)
-4. IETF RFC 6902 — *JavaScript Object Notation (JSON) Patch*.
+4. IETF RFC 6902 - *JavaScript Object Notation (JSON) Patch*.
    https://www.rfc-editor.org/rfc/rfc6902
    (Used for the operation set and the requirement that `add` has an existing
    parent.)
-5. IETF RFC 6901 — *JavaScript Object Notation (JSON) Pointer*.
+5. IETF RFC 6901 - *JavaScript Object Notation (JSON) Pointer*.
    https://www.rfc-editor.org/rfc/rfc6901
    (Used for the `~1` / `~0` escaping rules.)
-6. Kubernetes Documentation — *Deployments*.
+6. Kubernetes Documentation - *Deployments*.
    https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
    (Used for the Pod-template-change rollout trigger and `pod-template-hash`.)
-7. Kubernetes Documentation — *Recommended Labels*.
+7. Kubernetes Documentation - *Recommended Labels*.
    https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
    (Used for the `app.kubernetes.io/*` label set.)
-8. Kubernetes Documentation — *kubectl diff* reference.
+8. Kubernetes Documentation - *kubectl diff* reference.
    https://kubernetes.io/docs/reference/kubectl/generated/kubectl_diff/
    (Used for server-side dry-run behaviour and exit codes.)
-9. kind Documentation — *Configuration*.
+9. kind Documentation - *Configuration*.
    https://kind.sigs.k8s.io/docs/user/configuration/
    (Used for `kubeadmConfigPatches` and node naming.)
 
 ---
 
-## Appendix — Evidence index
+## Appendix - Evidence index
 
 | File | Task | What it establishes |
 | --- | --- | --- |
