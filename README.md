@@ -9,6 +9,7 @@ BE in Software Engineering.
 | --- | --- |
 | `dso202-practical-01/` | Local Kubernetes cluster with kind; core kubectl operations |
 | `dso202-practical-02/` | Persistent storage and StatefulSets; PostgreSQL as a stateful workload |
+| `dso202-practical-04/` | GitOps with Argo CD: Git as the source of truth, self-heal, prune and revert |
 | `dso202-practical-05/` | Environment-specific configuration with Kustomize bases and overlays |
 | `dso202-practical-06/` | Helm 4: charts, templates, values, validation and the release lifecycle |
 

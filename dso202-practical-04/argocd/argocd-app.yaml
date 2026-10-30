@@ -1,0 +1,30 @@
+# argocd-app.yaml
+# The Argo CD Application, kept OUTSIDE the GitOps repository (in this
+# practicals repo), as the handout allows. It is applied once with kubectl;
+# from then on every change to the workload is made through Git.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-webapp
+  namespace: argocd # Argo CD Applications ALWAYS live in the argocd namespace
+spec:
+  project: default
+
+  # 1. WHERE IS THE DESIRED STATE? (GitHub)
+  source:
+    repoURL: https://github.com/KeldenPDorji/dso202-gitops-demo.git
+    targetRevision: HEAD
+    path: manifests
+
+  # 2. WHERE SHOULD IT BE DEPLOYED? (Our Kind Cluster)
+  destination:
+    server: https://kubernetes.default.svc # Internal address of the local K8s cluster
+    namespace: demo-app # Target namespace for our app pods
+
+  # 3. HOW SHOULD ARGO CD SYNC IT?
+  syncPolicy:
+    automated:
+      prune: true      # Delete K8s resources if deleted from Git
+      selfHeal: true   # Revert manual kubectl changes automatically
+    syncOptions:
+      - CreateNamespace=true # Automatically create 'demo-app' namespace if missing
